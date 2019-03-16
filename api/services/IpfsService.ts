@@ -1,7 +1,10 @@
 import { Service, ServiceOptions } from 'ts-framework-common';
 import { Information, InformationModel } from '../models/ipfs';
 import { extract } from 'keyword-extractor';
-import { IPFSConfig } from '../../config';
+// import { IPFSConfig } from '../../config';
+import { getRepository } from 'typeorm';
+const ipfsClient = require('ipfs-http-client')
+const ipfs = ipfsClient({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
 
 export interface IpfsServiceOptions extends ServiceOptions {
 }
@@ -31,31 +34,77 @@ export default class IpfsService extends Service {
     return service;
   }
 
-  public async organizeInfo(information: Information) {
+  public static async organizeInfo(information: Information) {
 
-    const extraction = await extract(information.information, {
-      language: information.language,
-      remove_digits: true,
-      return_changed_case: true,
-      remove_duplicates: true
-    });
+    try {
 
-    const info = await InformationModel.create({
-      information: information.information,
-      language: information.language,
-      type: information.type,
-      keywords: extraction
-    });
+      const extraction = await extract(information.information, {
+        language: information.language,
+        remove_digits: true,
+        return_changed_case: true,
+        remove_duplicates: true
+      });
+  
+      const infoRepository = getRepository(InformationModel)
+  
+      const info = await infoRepository.insert({
+        information: information.information,
+        language: information.language,
+        type: information.type,
+        keywords: extraction
+      });
+
+      return info;
+
+    } catch (e) {
+      console.error(e)
+    }
   };
 
-  public async sendInfo(information: Information) {
-
-    const bufferInfo = Buffer.from(JSON.stringify(information))
-
-    IPFSConfig.add()
-
-    
+  public static async showInfo(infoID: string) {
+    try {
+      const infoRepository = getRepository(InformationModel)
+      const info = await infoRepository.findOne(infoID)
+      return info;
+    } catch (error) {
+      console.error(error)
+    }
   }
+
+  public static async showAll() {
+    try {
+      const infoRepository = getRepository(InformationModel)
+      const info = await infoRepository.find()
+      return info;
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  public static async sendInfo(infoID: string) {
+
+    try {
+
+      const info = JSON.stringify(await this.showInfo(infoID))
+
+      const bufferInfo = Buffer.from(String(info));
+
+      return new Promise(async (resolve,reject) => {
+
+        await ipfs.add(bufferInfo, (err, files) => {
+            if (err){
+                reject(err)
+            } 
+            else {
+                resolve(files[0].hash);
+            };
+        });
+      });
+      
+    } catch (error) {
+      console.error(error)
+    }
+  };
   
   async onMount(): Promise<void> {
     this.logger.debug('Mounting IpfsService instance');

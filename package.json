@@ -11,7 +11,7 @@
     "test": "jest --config jest.json"
   },
   "dependencies": {
-    "ipfs-http-client": "^29.1.1",
+    "ipfs-http-client": "^30.1.0",
     "keyword-extractor": "^0.0.15",
     "pjson": "^1.0.9",
     "ts-framework": "nxtep-io/ts-framework#v2.3",

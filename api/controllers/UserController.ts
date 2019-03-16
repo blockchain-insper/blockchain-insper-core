@@ -15,7 +15,7 @@ export default class UserController {
   static async show(req: BaseRequest, res: BaseResponse) {
     try {
 
-      // Using UserService method createUser() to create an User.
+      // Using UserService method showUser() to show an User.
       const user = await UserService.showUser(
         req.param("id")
       );

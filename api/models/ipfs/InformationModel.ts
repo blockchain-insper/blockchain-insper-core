@@ -18,6 +18,9 @@ export default class InformationModel extends ExtendedEntity {
   @Column({ nullable: false })
   public keywords: string;
 
+  @Column({nullable: true})
+  public hash: string
+
   constructor(data: Partial<InformationModel> = {}) {
     super(data);
   }
@@ -25,8 +28,8 @@ export default class InformationModel extends ExtendedEntity {
   public toJSON(): any {
     const base = super.toJSON();
     return {
-      firstName: this.information,
-      email: this.type,
+      information: this.information,
+      type: this.type,
       ...base
     };
   }
