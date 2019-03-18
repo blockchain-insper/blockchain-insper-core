@@ -6,10 +6,8 @@ const web3 = new Weber3(
   new Weber3.providers.HttpProvider('https://rinkeby.infura.io/')
 );
 
-var util = require('ethereumjs-util');
 var tx = require('ethereumjs-tx');
 var lightwallet = require('eth-lightwallet');
-var txutils = lightwallet.txutils;
 
 
 export interface EthServiceOptions extends ServiceOptions {
@@ -45,7 +43,7 @@ export default class EthService extends Service {
     try {
 
       var rawTx = {
-        nonce: await (web3.toHex(web3.eth.getTransactionCount(address))+300000),
+        nonce: await (web3.toHex(web3.eth.getTransactionCount(address))),
         gasLimit: web3.toHex(800000),
         gasPrice: web3.toHex(20000000000),
         data: '0x' + {
@@ -70,8 +68,8 @@ export default class EthService extends Service {
       const transaction = new tx(rawTnx);
       transaction.sign(private_key);
       const serializedTx = transaction.serialize().toString('hex');
-  
-      return await web3.eth.sendRawTransaction(
+
+      const deploy = await web3.eth.sendRawTransaction(
         '0x' + serializedTx, (err, result) => {
         if(err) { console.error(err) }
         else {
@@ -91,10 +89,12 @@ export default class EthService extends Service {
                   setTimeout(innerWaitBlock, 4000);
                   }
                 }
-            innerWaitBlock();
-          }
+          innerWaitBlock();
+        }
       }
     })
+  
+    return deploy
   } catch (error) {
       console.error(error)
     }
