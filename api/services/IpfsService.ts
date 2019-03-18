@@ -3,6 +3,8 @@ import { Information, InformationModel } from '../models/ipfs';
 import { extract } from 'keyword-extractor';
 // import { IPFSConfig } from '../../config';
 import { getRepository } from 'typeorm';
+
+// TODO move to config
 const ipfsClient = require('ipfs-http-client')
 const ipfs = ipfsClient({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
 
