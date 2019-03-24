@@ -4,7 +4,7 @@ export default {
     port: parseInt(process.env.DATABASE_PORT || "5432", 10),
     username: process.env.DATABASE_USER || "aronakamoto",
     password: process.env.DATABASE_PASSWORD || "3412",
-    database: "bi",
+    database: "bisdk",
     logging: ["error"],
   
     // TODO: Enable migrations before production

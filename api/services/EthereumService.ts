@@ -70,16 +70,16 @@ export default class EthService extends Service {
       const serializedTx = transaction.serialize().toString('hex');
 
       const deploy = await web3.eth.sendRawTransaction(
-        '0x' + serializedTx, (err, result) => {
+        '0x' + serializedTx, async (err, result) => {
         if(err) { console.error(err) }
         else {
           setTimeout(() => {
             waitBlock(() => {
             });
           }, 15000); 
-          function waitBlock(callback) {
-            function innerWaitBlock() {
-              const receipt = web3.eth.getTransactionReceipt(result);
+          async function waitBlock(callback) {
+            async function innerWaitBlock() {
+              const receipt = await web3.eth.getTransactionReceipt(result);
                 if (receipt && receipt.contractAddress) {
                   console.log("Your contract has been deployed at http://testnet.etherscan.io/address/" + receipt.contractAddress);
                   console.log("Note that it might take 30 - 90 sceonds for the block to propagate befor it's visible in etherscan.io");
@@ -92,9 +92,8 @@ export default class EthService extends Service {
           innerWaitBlock();
         }
       }
-    })
-  
-    return deploy
+    });
+    
   } catch (error) {
       console.error(error)
     }

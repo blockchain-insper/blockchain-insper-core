@@ -1,7 +1,7 @@
 import { Logger } from 'ts-framework-common';
 
 // Prepare server port
-const port = process.env.PORT as any || 3000;
+const port = process.env.PORT as any || 4000;
 
 
 // Prepare global logger instance

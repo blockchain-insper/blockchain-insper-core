@@ -1,8 +1,11 @@
 import { Service, ServiceOptions } from 'ts-framework-common';
-import { Information, InformationModel } from '../models/ipfs';
+import { Information, InformationModel, FileModel } from '../models/ipfs';
 import { extract } from 'keyword-extractor';
 // import { IPFSConfig } from '../../config';
 import { getRepository } from 'typeorm';
+
+import * as path from 'path';
+import * as fs from 'fs'
 
 // TODO move to config
 const ipfsClient = require('ipfs-http-client')
@@ -36,7 +39,7 @@ export default class IpfsService extends Service {
     return service;
   }
 
-  public static async organizeInfo(information: Information) {
+  public static async organizeSendInfo(information: Information) {
 
     try {
 
@@ -47,16 +50,22 @@ export default class IpfsService extends Service {
         remove_duplicates: true
       });
   
-      const infoRepository = getRepository(InformationModel)
-  
-      const info = await infoRepository.insert({
+      const info = await InformationModel.insert({
         information: information.information,
         language: information.language,
         type: information.type,
         keywords: extraction
       });
 
-      return info;
+      const send = String(await this.sendInfo(info.identifiers[0].id));
+
+      const info_id = await this.showInfo(info.identifiers[0].id);
+
+      info_id.hash = send;
+
+      await info_id.save();
+      
+      return send;
 
     } catch (e) {
       console.error(e)
@@ -66,14 +75,14 @@ export default class IpfsService extends Service {
   public static async showInfo(infoID: string) {
     try {
       const infoRepository = getRepository(InformationModel)
-      const info = await infoRepository.findOne(infoID)
+      const info = await InformationModel.findOne(infoID)
       return info;
     } catch (error) {
       console.error(error)
     }
   }
 
-  public static async showAll() {
+  public static async showAllInfo() {
     try {
       const infoRepository = getRepository(InformationModel)
       const info = await infoRepository.find()
@@ -86,7 +95,6 @@ export default class IpfsService extends Service {
   public static async sendInfo(infoID: string) {
 
     try {
-
       const info = JSON.stringify(await this.showInfo(infoID))
 
       const bufferInfo = Buffer.from(String(info));
@@ -107,6 +115,43 @@ export default class IpfsService extends Service {
       console.error(error)
     }
   };
+
+  public static async organizeSendFile(filename: string,  filepath: string) {
+    try {
+
+      if (!fs.existsSync(filepath)){
+        console.log("No directory called ", filepath);
+        return;
+    }
+
+    let file = fs.readFileSync(filepath + filename);
+
+    return new Promise(async (resolve,reject) => {
+
+      await ipfs.add(file, (err, files) => {
+          if (err){
+              reject(err)
+          } 
+          else {
+              resolve(files[0].hash);
+          };
+      });
+    });
+      
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  public static async showAllFile() {
+    try {
+      const fileRepository = getRepository(FileModel)
+      const file = await fileRepository.find()
+      return file;
+    } catch (error) {
+      console.error(error)
+    }
+  }
   
   async onMount(): Promise<void> {
     this.logger.debug('Mounting IpfsService instance');

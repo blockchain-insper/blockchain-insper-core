@@ -5,7 +5,7 @@ FROM node:10
 ARG SSH_PRIVATE_KEY
 
 # Variables
-ENV PORT=3000
+ENV PORT=4000
 ENV PACKAGE_NAME="blockchain-insper-sdk"
 
 # Prepare SSH private key

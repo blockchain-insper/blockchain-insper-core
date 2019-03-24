@@ -1,6 +1,5 @@
 import { Column, Entity } from "typeorm";
 import { ExtendedEntity } from "../base";
-import { extract } from "keyword-extractor";
 
 @Entity(InformationModel.TABLE_NAME)
 export default class InformationModel extends ExtendedEntity {
@@ -19,7 +18,7 @@ export default class InformationModel extends ExtendedEntity {
   public keywords: string;
 
   @Column({nullable: true})
-  public hash: string
+  public hash: string;
 
   constructor(data: Partial<InformationModel> = {}) {
     super(data);

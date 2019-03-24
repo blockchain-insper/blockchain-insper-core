@@ -1,5 +1,6 @@
 import { Controller, Get, BaseRequest, BaseResponse, Post } from "ts-framework";
 import IpfsService from "../services/IpfsService";
+import { FileModel } from "../models/ipfs";
 
 @Controller('/ipfs')
 export default class IPFSController {
@@ -11,28 +12,36 @@ export default class IPFSController {
    * from database.
    */
 
-   @Get('/:id')
-   static async show(req: BaseRequest, res: BaseResponse) {
-    // Using IpfsService method showInfo() to show an information.
+//    @Get('/:id')
+//    static async show(req: BaseRequest, res: BaseResponse) {
+//     // Using IpfsService method showInfo() to show an information.
 
-    try {
-        const info = await IpfsService.showInfo(req.param('id'))
-        return res.success(info)
-    } catch (error) {
-        console.error(error)
-    }
+//     try {
+//         const info = await IpfsService.showInfo(req.param('id'))
+//         return res.success(info)
+//     } catch (error) {
+//         console.error(error)
+//     }
+//    }
+
+   @Get('/')
+   static async showAllInfo(req: BaseRequest, res: BaseResponse) {
+       try {
+           const infos = await IpfsService.showAllInfo()
+           return res.success(infos)
+       } catch (error) {
+           console.error(error)
+       }
    }
-   @Get('/infos')
-   static async showAll(req: BaseRequest, res: BaseResponse) {
-    // Using IpfsService method showAll() to show all information on database.
 
-    try {
-        const infos = await IpfsService.showAll()
-        return res.success(infos)
-           
-    } catch (error) {
-        console.error(error)
-    }
+   @Get('/files')
+   static async showAllFile(req: BaseRequest, res: BaseResponse) {
+       try {
+           const files = await IpfsService.showAllFile();
+           return res.success(files)
+       } catch (error) {
+           console.error(error)
+       }
    }
 
    @Post('/')
@@ -40,21 +49,26 @@ export default class IPFSController {
     // Using IpfsService method organizeInfo() to create an information on database.
 
     try {
-        const info = await IpfsService.organizeInfo(req.body)
-        return res.success(info)
+        const send = await IpfsService.organizeSendInfo(req.body)
+
+        return res.success(send)
     } catch (error) {
         console.error(error)
     }
    }
 
-   @Post('/:id/send-info')
-   static async sendInfo(req: BaseRequest, res: BaseResponse) {
-    // Using IpfsService method sendInfo() to send an information from databse to IPFS.
-    try {
-        const info = await IpfsService.sendInfo(req.param('id'))
-        return res.success(info)
-    } catch (error) {
-        console.error(error)
-    }
+   @Post('/file')
+   static async createFile(req: BaseRequest, res: BaseResponse) {
+       try {
+           const send =  String(await IpfsService.organizeSendFile(req.body.filename,req.body.filepath));
+           const file = await FileModel.insert({
+               filename: req.body.filename,
+               type: req.body.type,
+               hash: send
+           });
+           return res.success(send)
+       } catch (error) {
+           console.error(error)
+       }
    }
 }
