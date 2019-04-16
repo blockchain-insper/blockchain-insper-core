@@ -15,11 +15,30 @@ export default class UserController {
   static async show(req: BaseRequest, res: BaseResponse) {
     try {
 
-      // Using UserService method showUser() to show an User.
-      const user = await UserService.showUser(
+      const user_client = await UserService.getInstance({})
+      const user = await user_client.showUser(
         req.param("id")
       );
       
+      return res.success(user)
+      
+    } catch (e) {
+      console.error(e)
+    };
+  };
+
+  /**
+   * GET /
+   * 
+   * @description Using Blockahin Insper SDK UserService method showAllUser() to show all users on BI SDK database.
+   */
+
+  @Get('/')
+  static async showAll(req: BaseRequest, res: BaseResponse) {
+    try {
+
+      const user_client = await UserService.getInstance({})
+      const user = await user_client.showAllUser();
       return res.success(user)
       
     } catch (e) {
@@ -41,8 +60,10 @@ export default class UserController {
       // Get body statements.
       const { firstName, lastName, email, password } = req.body
 
+      const user_client = await UserService.getInstance({})
+
       // Using UserService method createUser() to create an User.
-      const user = await UserService.storeUser(
+      const user = await user_client.storeUser(
         firstName,
         lastName,
         email,
