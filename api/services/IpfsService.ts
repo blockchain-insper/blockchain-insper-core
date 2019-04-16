@@ -1,10 +1,7 @@
 import { Service, ServiceOptions } from 'ts-framework-common';
 import { Information, InformationModel, FileModel } from '../models/ipfs';
 import { extract } from 'keyword-extractor';
-// import { IPFSConfig } from '../../config';
 import { getRepository } from 'typeorm';
-
-import * as path from 'path';
 import * as fs from 'fs'
 
 // TODO move to config

@@ -12,18 +12,6 @@ export default class IPFSController {
    * from database.
    */
 
-//    @Get('/:id')
-//    static async show(req: BaseRequest, res: BaseResponse) {
-//     // Using IpfsService method showInfo() to show an information.
-
-//     try {
-//         const info = await IpfsService.showInfo(req.param('id'))
-//         return res.success(info)
-//     } catch (error) {
-//         console.error(error)
-//     }
-//    }
-
    @Get('/')
    static async showAllInfo(req: BaseRequest, res: BaseResponse) {
        try {
