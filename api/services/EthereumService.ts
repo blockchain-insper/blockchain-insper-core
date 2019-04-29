@@ -1,4 +1,12 @@
 import { BaseError, Service, ServiceOptions } from 'ts-framework-common';
+import { getRepository } from 'typeorm';
+import { EthereumModel } from '../models';
+import { TypeContract } from '../models/EthereumModel';
+import ipfs, { InformationModel } from '../models/ipfs';
+
+var lightwallet = require('eth-lightwallet');
+
+var txutils = lightwallet.txutils;
 
 // TODO move to config
 const Weber3 = require('web3');
@@ -52,7 +60,7 @@ export default class EthService extends Service {
       }
 
       var rawTx = {
-        nonce: await (web3.toHex(web3.eth.getTransactionCount(address))),
+        nonce: await (web3.toHex(web3.eth.getTransactionCount(address)))+3000000,
         gasLimit: web3.toHex(800000),
         gasPrice: web3.toHex(20000000000),
         data: '0x' + eth + '0000000000000000000000000000000000000000000000000000000000000005'
@@ -64,7 +72,76 @@ export default class EthService extends Service {
     }
   }
 
-  public static async sendRaw(rawTnx, key: string) : Promise<any>{
+  //TODO
+  // public static async createRawHash
+
+  public static async showContracts(): Promise<EthereumModel[]> {
+    try {
+      const repository = getRepository(EthereumModel);
+      const user = await repository.find();
+      return user;
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  public static async sendHashToEth(information: string, type: string, key: string, address: string){
+    try {
+      const ipfsRepo = getRepository(InformationModel);
+      const ipfsInfo = await ipfsRepo.find({where:{information}})
+      const ethRepo = getRepository(EthereumModel);
+      const ethInfo = await ethRepo.find({where:{type}})
+
+      var txOptions = {
+        nonce: web3.toHex(web3.eth.getTransactionCount(address)),
+        gasLimit: web3.toHex(800000),
+        gasPrice: web3.toHex(200000000000),
+        to: ethInfo[0].hashContract
+      }
+
+      const abi = [
+        {
+          "constant": true,
+          "inputs": [],
+          "name": "getHash",
+          "outputs": [
+            {
+              "name": "x",
+              "type": "string"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [
+            {
+              "name": "x",
+              "type": "string"
+            }
+          ],
+          "name": "sendHash",
+          "outputs": [],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ]
+
+      var rawTx = txutils.functionTx(abi, 'sendHash', [ipfsInfo[0].hash], txOptions);
+
+      const sendRaw = await this.sendRaw(rawTx, key)
+
+      return sendRaw;
+      
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  public static async sendRaw(rawTnx, key: string, address?: string) : Promise<any>{
 
     try {
 
@@ -85,6 +162,14 @@ export default class EthService extends Service {
             async function innerWaitBlock() {
               const receipt = await web3.eth.getTransactionReceipt(result);
                 if (receipt && receipt.contractAddress) {
+                  // TODO save eth transaction Hash
+                  const hashEth = getRepository(EthereumModel)
+                  const saveEthHash = await hashEth.insert({
+                    type: TypeContract.Hash,
+                    private: key,
+                    address,
+                    hashContract: receipt.contractAddress
+                  });
                   console.log("Your contract has been deployed at http://testnet.etherscan.io/address/" + receipt.contractAddress);
                   console.log("Note that it might take 30 - 90 sceonds for the block to propagate befor it's visible in etherscan.io");
                   return receipt.contractAddress
@@ -105,7 +190,7 @@ export default class EthService extends Service {
 
   public static async sendContractCreation(address: string,privateKey: string) {
     const rawTnx = await this.createRaw(address)
-    const deploy = await this.sendRaw(rawTnx,privateKey)
+    const deploy = await this.sendRaw(rawTnx,privateKey, address)
     return deploy;
   }
   

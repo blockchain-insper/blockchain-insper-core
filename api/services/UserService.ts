@@ -49,10 +49,11 @@ export default class UserService extends Service {
       const user = await repository.insert({
         firstName,
         lastName,
-        email,
-        password
-      })
+        email
+      });
+
       const userdb = await this.showUser(user.identifiers[0].id)
+
       return userdb;
     } catch (error) {
       console.error(error)
@@ -68,6 +69,7 @@ export default class UserService extends Service {
       console.error(error)
     }
   }
+  
   
   async onMount(): Promise<void> {
     this.logger.debug('Mounting UserService instance');

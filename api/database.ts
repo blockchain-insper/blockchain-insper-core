@@ -6,8 +6,10 @@ import * as IPFSModels from "./models/ipfs"
 export default class MainDatabase extends EntityDatabase {
   public static readonly ENTITIES = [
     Models.UserModel,
+    Models.EthereumModel,
     IPFSModels.InformationModel,
     IPFSModels.FileModel
+
   ];
 
   protected static readonly instance: MainDatabase = new MainDatabase({

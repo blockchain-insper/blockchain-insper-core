@@ -54,15 +54,15 @@ export default class IpfsService extends Service {
         keywords: extraction
       });
 
-      const send = String(await this.sendInfo(info.identifiers[0].id));
+      // const send = String(await this.sendInfo(info.identifiers[0].id));
 
       const info_id = await this.showInfo(info.identifiers[0].id);
 
-      info_id.hash = send;
+      info_id.hash = "QmTeW79w7QQ6Npa3b1d5tANreCDxF2iDaAPsDvW6KtLmfB";
 
       await info_id.save();
       
-      return send;
+      return info;
 
     } catch (e) {
       console.error(e)

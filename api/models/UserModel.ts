@@ -1,5 +1,6 @@
 import { Column, Entity, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { ExtendedEntity } from "./base";
+import { generateSalt, hashPassword } from "../helpers/SecurityHelper";
 
 enum UserRole {
   DEVELOPER = "developer",
@@ -19,22 +20,29 @@ export default class UserModel extends ExtendedEntity {
   @Column({ nullable: false, unique: true })
   public email: string;
 
-  @Column({ nullable: false })
-  public password: string;
-
   @Column({ nullable: false, default: UserRole.DEVELOPER })
   public role: UserRole;
 
-  constructor(data: Partial<UserModel> = {}) {
+  @Column({ nullable: true})
+  public password_hash: string
+
+  @Column({ nullable: true})
+  public password_salt: string
+
+  constructor(data: Partial<UserModel>) {
     super(data);
   }
 
-  public toJSON(): any {
-    const base = super.toJSON();
-    return {
-      firstName: this.firstName,
-      email: this.email,
-      ...base
-    };
+  public async setPassword(password: string) {
+    try {
+      this.password_salt = generateSalt()
+      this.password_hash = hashPassword(password, this.password_salt)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  public static async findByEmail(email: string) {
+    return this.findOne({where:{email}})
   }
 }

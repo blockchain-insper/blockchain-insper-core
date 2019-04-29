@@ -38,7 +38,6 @@ export default class IPFSController {
 
     try {
         const send = await IpfsService.organizeSendInfo(req.body)
-
         return res.success(send)
     } catch (error) {
         console.error(error)

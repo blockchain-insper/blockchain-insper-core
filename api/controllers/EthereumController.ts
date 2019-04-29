@@ -4,6 +4,26 @@ import EthService from '../services/EthereumService';
 @Controller('/eth')
 export default class EthereumController {
 
+  @Get('/contracts')
+  static async showAll(req: BaseRequest, res: BaseResponse) {
+    try {
+      const show = await EthService.showContracts();
+      return res.success(show)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  @Get('/hash-to-eth')
+  static async specificInfo(req:BaseRequest, res: BaseResponse) {
+      try {
+          const info = await EthService.sendHashToEth(req.body.information, req.body.type, req.body.private, req.body.address);
+          return res.success(info)
+      } catch (error) {
+          console.error(error)
+      }
+  }
+
   /**
    * Post /eth/
    * 

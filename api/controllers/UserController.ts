@@ -1,5 +1,4 @@
 import { Controller, Get, BaseRequest, BaseResponse, HttpError, HttpCode, Post } from 'ts-framework';
-import { UserModel } from '../models';
 import UserService from '../services/UserService';
 
 @Controller('/users')
@@ -69,6 +68,10 @@ export default class UserController {
         email,
         password
       );
+
+      const set_password = await user.setPassword(password)
+
+      await user.save()
       
       return res.success(user)
       
