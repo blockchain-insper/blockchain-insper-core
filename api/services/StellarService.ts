@@ -41,12 +41,21 @@ export default class StellarService extends Service {
         );
         const responseJSON = await response.json();
         console.log("SUCCESS! You have a new account :)\n", responseJSON);
+        return responseJSON;
       } catch (e) {
         console.error("ERROR!", e);
       }
 
     } catch (error) {
       console.error(error)
+    }
+  }
+
+  public static async createToken() {
+    try {
+      
+    } catch (error) {
+      
     }
   }
   

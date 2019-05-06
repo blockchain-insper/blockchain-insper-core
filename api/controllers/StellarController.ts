@@ -13,7 +13,7 @@ export default class StellarController {
   static async createAccount(req: BaseRequest, res: BaseResponse) {
     try {
       const create = await StellarService.createAccount();
-
+      return res.success(create)
     } catch (error) {
       console.error(error)
     }
