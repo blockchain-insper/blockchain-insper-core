@@ -1,7 +1,7 @@
 **Introduction**
 =====
 
-The Blockchain Insper SDK implementing descentralize applications on various blockchain's and DLT's.
+The Blockchain Insper SDK implementing descentralize applications on various blockchains and DLTs.
 
 **Getting started**
 =====
